@@ -139,6 +139,18 @@ func run(src string) error {
 		return err
 	}
 
+	var modInit = exec.Command("go", "mod", "init", "example.com/main")
+	modInit.Dir = tempDir
+	if err := modInit.Run(); err != nil {
+		return err
+	}
+
+	var modTidy = exec.Command("go", "mod", "tidy")
+	modTidy.Dir = tempDir
+	if err := modTidy.Run(); err != nil {
+		return err
+	}
+
 	// Compile and run the program.
 	var cmd *exec.Cmd
 	switch *compilerFlag {
@@ -147,6 +159,7 @@ func run(src string) error {
 	case "gopherjs":
 		cmd = exec.Command("gopherjs", "run", "--tags", *tagsFlag, tempFile)
 	}
+	cmd.Dir = tempDir
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
